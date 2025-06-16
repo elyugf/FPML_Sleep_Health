@@ -15,6 +15,12 @@ from sklearn.metrics import confusion_matrix, classification_report
 @st.cache_resource
 def train_models():
     df = pd.read_csv("Sleep_Health.csv")
+    # Ganti label BMI dari "Normal" menjadi "Underweight"
+    df['BMI Category'] = df['BMI Category'].replace({
+        'Normal': 'Underweight',
+        'Normal Weight': 'Normal'
+    })
+
 
     X = df[['Gender', 'Age', 'Occupation', 'Sleep Duration', 'Physical Activity Level',
             'Stress Level', 'BMI Category', 'Heart Rate', 'Daily Steps',
@@ -29,7 +35,7 @@ def train_models():
     unique_categories = {
         'gender': sorted(df['Gender'].dropna().unique().tolist()),
         'occupation': sorted(df['Occupation'].dropna().unique().tolist()),
-        'bmi': sorted(df['BMI Category'].dropna().unique().tolist())
+        'bmi': ['Underweight', 'Normal', 'Overweight', 'Obese']
     }
 
     X['Gender'] = X['Gender'].astype(str)
@@ -75,7 +81,7 @@ st.set_page_config(page_title="Prediksi Tidur", layout="centered", page_icon="�
 
 # Tambahkan gambar ilustrasi tidur
 image = Image.open("Tidur.jpg")
-st.image(image, use_container_width=True)
+st.image(image, use_column_width=True)
 
 # Judul dan Subjudul
 st.markdown("""
@@ -86,7 +92,8 @@ st.markdown("""
 # =================== FORM INPUT ===================
 gender_options = unique_categories['gender']
 occupation_options = unique_categories['occupation']
-bmi_options = unique_categories['bmi']
+bmi_options = ['Underweight', 'Normal', 'Overweight', 'Obese']
+
 
 col1, col2 = st.columns(2)
 
@@ -94,15 +101,24 @@ with col1:
     gender = st.selectbox("Jenis Kelamin", gender_options)
     age = st.number_input("Usia", 1, 90, 30)
     occupation = st.selectbox("Pekerjaan", occupation_options)
-    sleep_duration = st.number_input("Durasi Tidur (jam)", 0.0, 10.0, 7.0, 0.1)
-    physical_activity_level = st.slider("Aktivitas Fisik (1-100)", 1, 100, 50)
+    sleep_duration = st.number_input("Durasi Tidur (Jam)", 0.0, 10.0, 7.0, 0.1)
+    physical_activity_level = st.slider("Aktivitas Fisik (Menit/Hari)", 1, 100, 50)
+    stress_level = st.slider("Tingkat Stres (1-10)", 1, 10, 5)
 
 with col2:
-    stress_level = st.slider("Tingkat Stres (1-10)", 1, 10, 5)
-    bmi_category = st.selectbox("Kategori BMI", bmi_options)
+    st.markdown("**Kategori BMI**", unsafe_allow_html=True)
+    st.markdown("""
+    <ul style='margin-top: -10px; margin-bottom: 5px;'>
+      <li>Underweight: ≤ 18.49 kg/m²</li>
+      <li>Normal: 18.5–24.9 kg/m²</li>
+      <li>Overweight: > 25–27 kg/m²</li>
+      <li>Obese: > 27 kg/m²</li>
+    </ul>
+    """, unsafe_allow_html=True)
+    bmi_category = st.selectbox("", bmi_options)
     systolic_bp = st.number_input("Tekanan Darah Sistolik", 80, 200, 120)
     diastolic_bp = st.number_input("Tekanan Darah Diastolik", 40, 150, 80)
-    heart_rate = st.number_input("Detak Jantung", 40, 120, 70)
+    heart_rate = st.number_input("Detak Jantung (Beats per Minute)", 40, 120, 70)
     daily_steps = st.number_input("Langkah Harian", 1000, 15000, 5000)
 
 # =================== PREDIKSI ===================
@@ -139,7 +155,7 @@ if st.button("🌙 Lihat Hasil Analisis Tidur"):
             pred_quality = 6.0
 
         # HASIL PREDIKSI
-        st.markdown("Hasil Prediksi Anda:")
+        # st.markdown("Hasil Prediksi Anda:")
         st.markdown("""
         <h2 style="font-size: 30px; font-weight: bold; margin-top: 20px;">Hasil Prediksi Anda:</h2>
         <div style="background-color: #E0ECF8; padding: 20px; border-radius: 10px;">
