@@ -81,7 +81,7 @@ st.set_page_config(page_title="Prediksi Tidur", layout="centered", page_icon="ğŸ
 
 # Tambahkan gambar ilustrasi tidur
 image = Image.open("Tidur.jpg")
-st.image(image, use_column_width=True)
+st.image(image, use_container_width=True)
 
 # Judul dan Subjudul
 st.markdown("""
