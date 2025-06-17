@@ -13,7 +13,6 @@ from sklearn.neural_network import MLPClassifier, MLPRegressor
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.metrics import confusion_matrix, classification_report
 
-
 # ========== TRAINING & CACHING ==========
 @st.cache_resource
 def train_models():
@@ -26,13 +25,11 @@ def train_models():
 
     # Ekstrak tekanan darah
     df[['Systolic', 'Diastolic']] = df['Blood Pressure'].str.extract(r'(\d+)\s*/\s*(\d+)').astype(float)
-
     df = df.dropna(subset=['Sleep Disorder', 'Quality of Sleep'])
 
     X = df[['Gender', 'Age', 'Occupation', 'Sleep Duration', 'Physical Activity Level',
             'Stress Level', 'BMI Category', 'Heart Rate', 'Daily Steps',
             'Systolic', 'Diastolic']]
-
     y1 = df['Sleep Disorder']
     y2 = df['Quality of Sleep']
 
@@ -88,7 +85,7 @@ except:
 # ========== KONFIGURASI HALAMAN ==========
 
 image = Image.open("Tidur.jpg")
-st.image(image, use_container_width=True)
+st.image(image, use_column_width=True)
 
 st.markdown("""
     <h1 style='text-align: center; color: #4B8BBE;'>🌙 Sleep Health Analyzer</h1>
@@ -125,17 +122,11 @@ with col2:
 # =================== PREDIKSI ===================
 if st.button("🌙 Lihat Hasil Analisis Tidur"):
     input_dict = {
-        'Gender': [gender],
-        'Age': [age],
-        'Occupation': [occupation],
-        'Sleep Duration': [sleep_duration],
-        'Physical Activity Level': [physical_activity_level],
-        'Stress Level': [stress_level],
-        'BMI Category': [bmi_category],
-        'Heart Rate': [heart_rate],
-        'Daily Steps': [daily_steps],
-        'Systolic': [systolic_bp],
-        'Diastolic': [diastolic_bp]
+        'Gender': [gender], 'Age': [age], 'Occupation': [occupation],
+        'Sleep Duration': [sleep_duration], 'Physical Activity Level': [physical_activity_level],
+        'Stress Level': [stress_level], 'BMI Category': [bmi_category],
+        'Heart Rate': [heart_rate], 'Daily Steps': [daily_steps],
+        'Systolic': [systolic_bp], 'Diastolic': [diastolic_bp]
     }
 
     input_df = pd.DataFrame(input_dict)
@@ -143,7 +134,9 @@ if st.button("🌙 Lihat Hasil Analisis Tidur"):
 
     for col in set(feature_names) - set(input_encoded.columns):
         input_encoded[col] = 0
-    input_encoded = input_encoded[feature_names]
+
+    input_encoded = input_encoded[[col for col in feature_names if col in input_encoded.columns]]
+    input_encoded = input_encoded.reindex(columns=feature_names, fill_value=0)
 
     input_scaled = scaler.transform(input_encoded)
 
@@ -159,7 +152,7 @@ if st.button("🌙 Lihat Hasil Analisis Tidur"):
         <h2 style="font-size: 30px; font-weight: bold; margin-top: 20px;">Hasil Prediksi Anda:</h2>
         <div style="background-color: #E0ECF8; padding: 20px; border-radius: 10px;">
             <p style='font-size: 18px;'>🧠 <strong>Gangguan Tidur:</strong> <span style='color: #4B8BBE;'>{}</span></p>
-            <p style='font-size: 18px;'>🛏 <strong>Kualitas Tidur:</strong> <span style='color: #4B8BBE;'>{:.2f} / 10</span></p>
+            <p style='font-size: 18px;'>🛎 <strong>Kualitas Tidur:</strong> <span style='color: #4B8BBE;'>{:.2f} / 10</span></p>
         </div>
         """.format(pred_label, pred_quality), unsafe_allow_html=True)
 
@@ -195,3 +188,4 @@ if st.button("🌙 Lihat Hasil Analisis Tidur"):
 
     except Exception as e:
         st.error(f"Kesalahan saat prediksi: {e}")
+        
