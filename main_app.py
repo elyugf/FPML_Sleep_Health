@@ -85,7 +85,7 @@ except:
 # ========== KONFIGURASI HALAMAN ==========
 
 image = Image.open("Tidur.jpg")
-st.image(image, use_column_width=True)
+st.image(image, use_container_width=True)
 
 st.markdown("""
     <h1 style='text-align: center; color: #4B8BBE;'>🌙 Sleep Health Analyzer</h1>
